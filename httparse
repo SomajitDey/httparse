@@ -13,11 +13,12 @@ trap "rm -f ${tmp}" exit
 
 echo "{" > "${tmp}"
 
-echo -n "\"method\": \"${method}\"" >> "${tmp}"
-echo -ne ",\n\"path\": \"${path}\"" >> "${tmp}"
-echo -ne ",\n\"version\": \"${version}\"" >> "${tmp}"
+echo -n "\"method\": \"${method//\"/\\\"}\"" >> "${tmp}"
+echo -ne ",\n\"path\": \"${path//\"/\\\"}\"" >> "${tmp}"
+echo -ne ",\n\"version\": \"${version//\"/\\\"}\"" >> "${tmp}"
 
 while read && IFS=: read -rd $'\r\n' header value && [[ -n "${header}" ]];do
+  value="${value//\"/\\\"}"
   echo -ne ",\n\"${header}\": \"${value#' '}\"" >> "${tmp}"
 done
 

@@ -8,7 +8,7 @@ Takes http request as input and outputs the headers and their values as json. Ex
 
 (optional) `jq` 
 
-#### Example
+#### Test / Example:
 
 Run a simple http server in foreground in a terminal:
 
@@ -26,3 +26,4 @@ curl localhost:8080 -d "Hello server"$'\r\n'
 
 See what you got in the first terminal :-)
 
+Now, open http://localhost:8080 in a browser and check the new output at the first terminal.
