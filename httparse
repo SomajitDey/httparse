@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+# Description: http request parser. Output is json.
+# Posix incompatibility: Using bash-specific features because it gives better "read" capabilities.
+# Remarks:
+# jq is used just for pretty output. If plain json is ok, then simply echo to stdout instead of tmp.
+
+read -rd $'\r\n' method path version
+
+tmp="$(mktemp XXXXX)"
+
+trap "rm -f ${tmp}" exit
+
+echo "{" > "${tmp}"
+
+echo -n "\"method\": \"${method}\"" >> "${tmp}"
+echo -ne ",\n\"path\": \"${path}\"" >> "${tmp}"
+echo -ne ",\n\"version\": \"${version}\"" >> "${tmp}"
+
+while read && IFS=: read -rd $'\r\n' header value && [[ -n "${header}" ]];do
+  echo -ne ",\n\"${header}\": \"${value#' '}\"" >> "${tmp}"
+done
+
+echo -e "\n}" >> "${tmp}"
+
+jq '.' "${tmp}"
+
+exit 0
+### Next read should be from payload
