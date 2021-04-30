@@ -3,9 +3,11 @@
 # Description: http request parser. Output is json.
 # Posix incompatibility: Using bash-specific features because it gives better "read" capabilities.
 # Remarks:
-# jq is used just for pretty output. If plain json is ok, then simply echo to stdout instead of tmp.
+# jq is used for pretty output only. If plain json is ok, then simply echo to stdout instead of tmp.
 
-read -rd $'\r\n' method path version
+# TODO: parse query strings from path
+
+read -rd $'\r\n' method path version && read
 
 tmp="$(mktemp XXXXX)"
 
@@ -17,7 +19,7 @@ echo -n "\"method\": \"${method//\"/\\\"}\"" >> "${tmp}"
 echo -ne ",\n\"path\": \"${path//\"/\\\"}\"" >> "${tmp}"
 echo -ne ",\n\"version\": \"${version//\"/\\\"}\"" >> "${tmp}"
 
-while read && IFS=: read -rd $'\r\n' header value && [[ -n "${header}" ]];do
+while IFS=: read -rd $'\r\n' header value && read && [[ -n "${header}" ]];do
   value="${value//\"/\\\"}"
   echo -ne ",\n\"${header}\": \"${value#' '}\"" >> "${tmp}"
 done

@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+# Greets for GET
+# Shows payload on server tty for POST/PUT
+# Dependency: bash, mktemp and jq
+
+export tmp="$(mktemp XXXXX)"
+trap "rm -f ${tmp}" exit
+./httparse > "${tmp}"
+
+response-header(){
+  printf "HTTP/1.1 200 OK\r\n"
+}
+
+method="$(jq -r '.method' "${tmp}")"
+
+case "${method}" in
+  GET)
+    response-header
+    export greeting="Hello client\n"
+    printf "Content-Length: $(wc -c <(printf "${greeting}") | awk '{ print $1 }')\r\n"
+    printf "\r\n${greeting}\r\n"
+    ;;
+  POST|PUT)
+    content_length="$(jq -r '."Content-Length"' "${tmp}")"
+    read -N "${content_length}"
+    echo "${REPLY}" >/dev/tty
+    response-header
+    ;;
+esac
+
+exit 0
